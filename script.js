@@ -1,9 +1,4 @@
-/* ==========================================================================
-   GENTLE CODER - INTERACTIVE SCRIPT
-   Features: Direct Gmail Compose Auto-Generation, Clean Link Displays
-   ========================================================================== */
-
-// Official Brand & Social Media Configuration:
+//Brand & Social Media Configuration:
 const GENTLE_CODER_CONFIG = {
   brandName: "GentleCoder",
   realName: "Oluwatosin Oyelakin",
@@ -27,10 +22,6 @@ const GENTLE_CODER_CONFIG = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-
-  /* ------------------------------------------------------------------------
-     1. DYNAMIC TYPEWRITER EFFECT (HERO SECTION)
-     ------------------------------------------------------------------------ */
   const typedTextElement = document.getElementById('typed-text');
   const roles = GENTLE_CODER_CONFIG.roles;
 
@@ -68,12 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
     typeEffect();
   }
 
-  /* ------------------------------------------------------------------------
-     2. NAVBAR SCROLL & MOBILE TOGGLE
-     ------------------------------------------------------------------------ */
+  /* NAVBAR SCROLL, MOBILE TOGGLE & BACKDROP */
   const header = document.getElementById('header');
   const mobileToggle = document.getElementById('mobile-toggle');
   const navMenu = document.getElementById('nav-menu');
+  const navBackdrop = document.getElementById('nav-backdrop');
   const navLinks = document.querySelectorAll('.nav-link');
 
   window.addEventListener('scroll', () => {
@@ -101,31 +91,55 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  const closeMobileNav = () => {
+    if (navMenu) navMenu.classList.remove('active');
+    if (navBackdrop) navBackdrop.classList.remove('active');
+    document.body.classList.remove('no-scroll');
+    if (mobileToggle) {
+      const icon = mobileToggle.querySelector('i');
+      if (icon) icon.className = 'fa-solid fa-bars';
+      mobileToggle.setAttribute('aria-expanded', 'false');
+    }
+  };
+
+  const openMobileNav = () => {
+    if (navMenu) navMenu.classList.add('active');
+    if (navBackdrop) navBackdrop.classList.add('active');
+    document.body.classList.add('no-scroll');
+    if (mobileToggle) {
+      const icon = mobileToggle.querySelector('i');
+      if (icon) icon.className = 'fa-solid fa-xmark';
+      mobileToggle.setAttribute('aria-expanded', 'true');
+    }
+  };
+
   if (mobileToggle) {
     mobileToggle.addEventListener('click', () => {
-      navMenu.classList.toggle('active');
-      const icon = mobileToggle.querySelector('i');
-      if (navMenu.classList.contains('active')) {
-        icon.className = 'fa-solid fa-xmark';
+      const isOpen = navMenu && navMenu.classList.contains('active');
+      if (isOpen) {
+        closeMobileNav();
       } else {
-        icon.className = 'fa-solid fa-bars';
+        openMobileNav();
       }
     });
   }
 
+  if (navBackdrop) {
+    navBackdrop.addEventListener('click', closeMobileNav);
+  }
+
   // Close menu on link click
   navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      navMenu.classList.remove('active');
-      if (mobileToggle) {
-        mobileToggle.querySelector('i').className = 'fa-solid fa-bars';
-      }
-    });
+    link.addEventListener('click', closeMobileNav);
   });
 
-  /* ------------------------------------------------------------------------
-     3. ANIMATED STAT COUNTERS
-     ------------------------------------------------------------------------ */
+  // Close menu on Escape key press
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navMenu && navMenu.classList.contains('active')) {
+      closeMobileNav();
+    }
+  });
+
   const statNumbers = document.querySelectorAll('.stat-number');
   let animated = false;
 
@@ -161,9 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     countUpObserver.observe(statsSection);
   }
 
-  /* ------------------------------------------------------------------------
-     4. LIVE CODE PLAYGROUND LAB WIDGET
-     ------------------------------------------------------------------------ */
+  /* LIVE CODE PLAYGROUND LAB WIDGET */
   const editorDisplay = document.getElementById('editor-display');
   const demoWidgetContainer = document.getElementById('demo-widget-container');
   const playgroundTabs = document.querySelectorAll('.playground-tab');
@@ -449,9 +461,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial tab load
   loadPlaygroundTab('password');
 
-  /* ------------------------------------------------------------------------
-     5. PROJECT CATEGORY FILTERING
-     ------------------------------------------------------------------------ */
   const filterBtns = document.querySelectorAll('.filter-btn');
   const projectCards = document.querySelectorAll('.project-card');
 
@@ -474,21 +483,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ------------------------------------------------------------------------
-     6. AUTOMATIC GMAIL COMPOSE GENERATION
-     ------------------------------------------------------------------------ */
   const contactForm = document.getElementById('contact-form');
   const toastMsg = document.getElementById('toast-msg');
   const toastText = document.getElementById('toast-text');
+  const toastClose = document.getElementById('toast-close');
+  let toastTimer = null;
 
   function showToast(message) {
     if (toastMsg) {
-      toastText.textContent = message;
+      if (toastTimer) {
+        clearTimeout(toastTimer);
+      }
+      if (toastText) {
+        toastText.textContent = message;
+      }
       toastMsg.classList.add('show');
-      setTimeout(() => {
+      toastTimer = setTimeout(() => {
         toastMsg.classList.remove('show');
       }, 5000);
     }
+  }
+
+  if (toastClose) {
+    toastClose.addEventListener('click', () => {
+      if (toastMsg) {
+        toastMsg.classList.remove('show');
+      }
+    });
   }
 
   if (contactForm) {
@@ -515,14 +536,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = mailtoUrl;
       }
 
-      showToast(`Generating message for ${name}... Opening Gmail!`);
+      showToast(`Thank you, ${name}! Your message is prepared in Gmail.`);
       contactForm.reset();
     });
   }
 
-  /* ------------------------------------------------------------------------
-     7. LIVE DEVICE SNAPSHOT (BROWSER-EXPOSED INFORMATION ONLY)
-     ------------------------------------------------------------------------ */
   const batteryText = document.getElementById('device-battery');
   const connectionText = document.getElementById('device-connection');
   const screenText = document.getElementById('device-screen');
@@ -587,5 +605,55 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navigator.hardwareConcurrency) details.push(`${navigator.hardwareConcurrency} logical cores`);
     if (navigator.deviceMemory) details.push(`about ${navigator.deviceMemory} GB RAM`);
     capacityText.textContent = details.length ? details.join('  -  ') : 'Details not exposed by this browser';
+  }
+
+  const skillSection = document.getElementById('skills');
+  const skillBars = document.querySelectorAll('.skill-progress');
+
+  if (skillBars.length > 0) {
+    const animateSkillBars = () => {
+      skillBars.forEach(bar => {
+        const targetWidth = bar.getAttribute('data-progress') || '100%';
+        bar.style.width = targetWidth;
+      });
+    };
+
+    if ('IntersectionObserver' in window && skillSection) {
+      const skillsObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            animateSkillBars();
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.2,
+        rootMargin: '0px 0px -40px 0px'
+      });
+
+      skillsObserver.observe(skillSection);
+    } else {
+      // Fallback for older browsers
+      animateSkillBars();
+    }
+  }
+
+  const scrollTopBtn = document.getElementById('scroll-top-btn');
+
+  if (scrollTopBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 350) {
+        scrollTopBtn.classList.add('show');
+      } else {
+        scrollTopBtn.classList.remove('show');
+      }
+    });
+
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
   }
 });
